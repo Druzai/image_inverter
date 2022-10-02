@@ -1,0 +1,7 @@
+pywin32==304
+Nuitka==1.1
+# pyinstaller==5.2
+Pillow==9.2.0
+tkinterdnd2==0.3.0
+jsons==1.6.1
+PyYAML==6.0
