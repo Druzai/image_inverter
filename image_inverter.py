@@ -15,6 +15,8 @@ from tkinterdnd2 import DND_FILES, TkinterDnD
 from config import Config, save_to_yaml, read_from_yaml
 from logic import invert_image_with_blend, to_clipboard
 
+VERSION = "0.1"
+
 
 class App(ttk.Frame):
     def convert_placeholder_image_to_theme(self):
@@ -35,6 +37,7 @@ class App(ttk.Frame):
     def __init__(self, parent: tk.Tk):
         ttk.Frame.__init__(self)
         self.parent = parent
+        self.help_window: Optional[tk.Toplevel] = None
 
         self.original_image_name: Optional[str] = None
         self.original_image: Optional[Image.Image] = None
@@ -74,8 +77,8 @@ class App(ttk.Frame):
         self.canvas_frame = ttk.Frame(self)
         self.canvas_frame.pack(expand=True, fill=BOTH, anchor=CENTER)
 
-        self.canvas = Canvas(self.canvas_frame, width=400, height=300, scrollregion=(0, 0, 400, 300))
-        self.canvas.create_image((200, 150), anchor=CENTER, image=self.placeholder_image, tag="img")
+        self.canvas = Canvas(self.canvas_frame, width=460, height=300, scrollregion=(0, 0, 460, 300))
+        self.canvas.create_image((245, 150), anchor=CENTER, image=self.placeholder_image, tag="img")
 
         hbar = tk.Scrollbar(self.canvas_frame, orient=HORIZONTAL)
         hbar.pack(side=BOTTOM, fill=X)
@@ -132,7 +135,12 @@ class App(ttk.Frame):
             justify="center",
             font=("-size", 10, "-weight", "bold"),
         )
-        self.label.grid(row=1, column=2, pady=10, padx=10)
+        self.label.grid(row=0, column=3, pady=10, padx=10)
+
+        self.button_help = ttk.Button(
+            self.settings_frame, text="Help", command=self.show_help
+        )
+        self.button_help.grid(row=1, column=2, padx=5, pady=10, sticky="nsew")
 
     def change_theme(self, event):
         force_dark = self.theme_combo.get() == self.theme_combo_list[0]
@@ -223,6 +231,61 @@ class App(ttk.Frame):
         # https://stackoverflow.com/questions/17355902/tkinter-binding-mousewheel-to-scrollbar
         self.canvas.xview_scroll(int(-2 * (event.delta / 120)), "units")
 
+    def show_help(self):
+        if not HelpWindow.alive:
+            HelpWindow(
+                x=self.parent.winfo_x() + (self.parent.winfo_width() // 2),
+                y=self.parent.winfo_y() + (self.parent.winfo_height() // 2)
+            )
+
+
+class HelpWindow(tk.Toplevel):
+    alive = False
+
+    def __init__(self, x, y, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title("About program")
+
+        for index in range(4):
+            self.columnconfigure(index=index, weight=1)
+            self.rowconfigure(index=index, weight=1 + (9 if index == 3 else 0))
+
+        self.setup_widgets()
+
+        self.update()
+        self.minsize(self.winfo_width(), self.winfo_height())
+        self.maxsize(self.winfo_width(), self.winfo_height())
+        self.geometry("+{}+{}".format(x - (self.winfo_width() // 2), y - 20 - (self.winfo_height() // 2)))
+
+        self.focus()
+        self.grab_set()
+        self.__class__.alive = True
+
+    def setup_widgets(self):
+        self.label = ttk.Label(
+            self,
+            text=f"Image Inverter v{VERSION} by Druzai\n\n"
+                 "Keybindings:\n"
+                 "'Ctrl + V' or 'Shift + Insert' - Insert image from clipboard\n"
+                 "'Ctrl + C' - Copy image to clipboard\n"
+                 "'Arrow Right/Left' - Change inversion value by 1%\n"
+                 "'MouseWheel' and 'Ctrl + MouseWheel' - Scroll image in preview",
+            justify="center",
+            font=("-size", 10, "-weight", "bold"),
+        )
+        self.label.grid(row=0, column=1, pady=10, padx=10, columnspan=2, rowspan=3)
+
+        self.button_close = ttk.Button(
+            self,
+            text="Close window",
+            command=self.destroy
+        )
+        self.button_close.grid(row=3, column=1, padx=5, pady=10, sticky="nsew", columnspan=2)
+
+    def destroy(self):
+        self.__class__.alive = False
+        return super().destroy()
+
 
 def startup():
     if not path.exists(Path(os.getcwd(), Config.config_name)):
@@ -239,7 +302,6 @@ def startup():
 
 if __name__ == "__main__":
     # TODO: And add checkbox for sepia
-    #  Add help window for keybindings
     startup()
     root = TkinterDnD.Tk()
     root.title(Config.title)
