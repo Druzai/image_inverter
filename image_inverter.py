@@ -32,7 +32,7 @@ class App(ttk.Frame):
         if self.original_image is None:
             self.placeholder_image = ImageTk.PhotoImage(self.convert_placeholder_image_to_theme())
             self.canvas.delete("img")
-            self.canvas.create_image((200, 150), anchor=CENTER, image=self.placeholder_image, tag="img")
+            self.canvas.create_image((310, 170), anchor=CENTER, image=self.placeholder_image, tag="img")
 
     def __init__(self, parent: tk.Tk):
         ttk.Frame.__init__(self)

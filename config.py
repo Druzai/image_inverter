@@ -46,7 +46,7 @@ class SavingThread(Thread):
 
 
 class Config:
-    title = "Image inverter"
+    title = "Image Inverter"
     icon_file = "icon.ico"
     config_name = "_image_inversion_config.yml"
     config: Settings = Settings()
