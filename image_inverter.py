@@ -77,8 +77,8 @@ class App(ttk.Frame):
         self.canvas_frame = ttk.Frame(self)
         self.canvas_frame.pack(expand=True, fill=BOTH, anchor=CENTER)
 
-        self.canvas = Canvas(self.canvas_frame, width=460, height=300, scrollregion=(0, 0, 460, 300))
-        self.canvas.create_image((245, 150), anchor=CENTER, image=self.placeholder_image, tag="img")
+        self.canvas = Canvas(self.canvas_frame, width=620, height=340, scrollregion=(0, 0, 620, 340))
+        self.canvas.create_image((310, 170), anchor=CENTER, image=self.placeholder_image, tag="img")
 
         hbar = tk.Scrollbar(self.canvas_frame, orient=HORIZONTAL)
         hbar.pack(side=BOTTOM, fill=X)
@@ -99,6 +99,12 @@ class App(ttk.Frame):
         # Buttons
         self.settings_frame = ttk.Frame(self)
         self.settings_frame.pack(fill=BOTH, anchor=S)
+
+        for index in range(4):
+            self.settings_frame.columnconfigure(index=index, weight=1)
+
+        for index in range(2):
+            self.settings_frame.rowconfigure(index=index, weight=1)
 
         self.button_from_clipboard = ttk.Button(
             self.settings_frame, text="From clipboard", command=self.process_image_from_clipboard
@@ -142,6 +148,15 @@ class App(ttk.Frame):
         )
         self.button_help.grid(row=1, column=2, padx=5, pady=10, sticky="nsew")
 
+        # Label for errors
+        self.errors_label = ttk.Label(
+            self.settings_frame,
+            text="",
+            justify="center",
+            font=("-size", 10, "-weight", "bold"),
+        )
+        self.errors_label.grid(row=1, column=3, pady=10, padx=10)
+
     def change_theme(self, event):
         force_dark = self.theme_combo.get() == self.theme_combo_list[0]
         force_light = self.theme_combo.get() == self.theme_combo_list[1]
@@ -160,12 +175,16 @@ class App(ttk.Frame):
 
     def process_grabbed_image(self, event):
         image_path = event.data.strip("{}")
-        with suppress(FileNotFoundError, UnidentifiedImageError, OSError):
+        try:
             self.set_image_to_canvas(Image.open(image_path))
             self.original_image_name = path.basename(image_path).split(".", maxsplit=1)[0]
             self.apply_inversion()
+            self.errors_label.config(text="")
+        except (FileNotFoundError, UnidentifiedImageError, OSError):
+            self.errors_label.config(text="Couldn't get image from file drop!")
 
     def process_image_from_clipboard(self):
+        processed = False
         images = ImageGrab.grabclipboard()
         if images is not None and isinstance(images, list):
             for image in images:
@@ -173,15 +192,25 @@ class App(ttk.Frame):
                     self.set_image_to_canvas(Image.open(image))
                     self.original_image_name = f"Image-{datetime.now().strftime('%d-%m-%Y %H%M%S')}"
                     self.apply_inversion()
+                    processed = True
                     break
         elif images is not None and isinstance(images, Image.Image):
             self.set_image_to_canvas(images)
             self.original_image_name = f"Image-{datetime.now().strftime('%d-%m-%Y %H%M%S')}"
             self.apply_inversion()
+            processed = True
+
+        if not processed:
+            self.errors_label.config(text="Couldn't get image from clipboard!")
+        else:
+            self.errors_label.config(text="")
 
     def save_image_to_clipboard(self):
         if self.original_image is not None:
             to_clipboard(self.inverted_image if self.inverted_image is not None else self.original_image)
+            self.errors_label.config(text="")
+        else:
+            self.errors_label.config(text="Couldn't save image to clipboard!")
 
     def set_image_to_canvas(self, image: Image, set_as_inverted=False):
         if set_as_inverted:
@@ -248,7 +277,7 @@ class HelpWindow(tk.Toplevel):
 
         for index in range(4):
             self.columnconfigure(index=index, weight=1)
-            self.rowconfigure(index=index, weight=1 + (9 if index == 3 else 0))
+            self.rowconfigure(index=index, weight=1)
 
         self.setup_widgets()
 
