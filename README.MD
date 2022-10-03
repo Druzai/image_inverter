@@ -2,7 +2,9 @@
 
 ## Information
 
-Was inspired by this [gist](https://gist.github.com/MaxBQb/3140ffe5a3bc40301555cbf337eba4ad).
+App was inspired by this [gist](https://gist.github.com/MaxBQb/3140ffe5a3bc40301555cbf337eba4ad).
+
+App can invert images from the clipboard and those that user drags onto the application window.
 
 Ttk theme was used from [Azure-ttk-theme](https://github.com/rdbende/Azure-ttk-theme) repository.
 
