@@ -63,6 +63,7 @@ class App(ttk.Frame):
         self.parent.bind('<Control-v>', lambda e: self.process_image_from_clipboard())
         self.parent.bind('<Shift-Insert>', lambda e: self.process_image_from_clipboard())
         self.parent.bind('<Control-c>', lambda e: self.save_image_to_clipboard())
+        self.parent.bind('<Control-s>', lambda e: self.save_image_to_disk())
 
     def setup_widgets(self):
         # Menu
@@ -252,6 +253,9 @@ class App(ttk.Frame):
                 return
 
             image.save(fp=filename)
+            self.errors_label.config(text="")
+        else:
+            self.errors_label.config(text="Couldn't save image to disk!")
 
     def on_mousewheel_y(self, event):  # TODO: set '-2' as defined value via readonly combobox
         self.canvas.yview_scroll(int(-2 * (event.delta / 120)), "units")
@@ -297,6 +301,7 @@ class HelpWindow(tk.Toplevel):
                  "Keybindings:\n"
                  "'Ctrl + V' or 'Shift + Insert' - Insert image from clipboard\n"
                  "'Ctrl + C' - Copy image to clipboard\n"
+                 "'Ctrl + S' - Save image to disk\n"
                  "'Arrow Right/Left' - Change inversion value by 1%\n"
                  "'MouseWheel' and 'Ctrl + MouseWheel' - Scroll image in preview",
             justify="center",
