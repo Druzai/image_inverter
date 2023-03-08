@@ -15,7 +15,7 @@ from tkinterdnd2 import DND_FILES, TkinterDnD
 from config import Config, save_to_yaml, read_from_yaml
 from logic import invert_image_with_blend, to_clipboard
 
-VERSION = "0.1"
+VERSION = "0.2"
 
 
 class App(ttk.Frame):
