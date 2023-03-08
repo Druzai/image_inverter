@@ -90,9 +90,10 @@ class App(ttk.Frame):
         self.canvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
         self.canvas.pack(expand=True, fill=BOTH)
 
-        # register the canvas as a drop target
+        # Register the canvas as a drop and clickable target
         self.canvas.drop_target_register(DND_FILES)
         self.canvas.dnd_bind("<<Drop>>", self.process_grabbed_image)
+        self.canvas.bind("<Button-1>", lambda e: self.open_dialog_for_image())
 
         self.parent.bind("<MouseWheel>", self.on_mousewheel_y)
         self.parent.bind("<Control-MouseWheel>", self.on_mousewheel_x)
@@ -176,6 +177,20 @@ class App(ttk.Frame):
 
     def process_grabbed_image(self, event):
         image_path = event.data.strip("{}")
+        self.open_image_from_path(image_path)
+
+    def open_dialog_for_image(self):
+        image_path = filedialog.askopenfilename(
+            filetypes=(
+                ("Image Files", ".png .jpeg .jpg"),
+                ("All Files", "*")
+            )
+        )
+        if len(image_path.strip()) == 0:
+            return
+        self.open_image_from_path(image_path)
+
+    def open_image_from_path(self, image_path: str):
         try:
             self.set_image_to_canvas(Image.open(image_path))
             self.original_image_name = path.basename(image_path).split(".", maxsplit=1)[0]
@@ -303,7 +318,8 @@ class HelpWindow(tk.Toplevel):
                  "'Ctrl + C' - Copy image to clipboard\n"
                  "'Ctrl + S' - Save image to disk\n"
                  "'Arrow Right/Left' - Change inversion value by 1%\n"
-                 "'MouseWheel' and 'Ctrl + MouseWheel' - Scroll image in preview",
+                 "'Mouse Wheel' and 'Ctrl + Mouse Wheel' - Scroll image in preview\n"
+                 "'Left Mouse Button' on canvas - Open dialog to select image",
             justify="center",
             font=("-size", 10, "-weight", "bold"),
         )
