@@ -60,10 +60,17 @@ class App(ttk.Frame):
         self.setup_widgets()
 
         # Set up key binds
-        self.parent.bind('<Control-v>', lambda e: self.process_image_from_clipboard())
+        def callback(event):
+            if event.state & 4 > 0:
+                if event.keycode == 83:    # Ctrl-S
+                    self.save_image_to_disk()
+                elif event.keycode == 67:  # Ctrl-C
+                    self.save_image_to_clipboard()
+                elif event.keycode == 86:  # Ctrl-V
+                    self.process_image_from_clipboard()
+
+        self.parent.bind("<Control-Key>", callback)
         self.parent.bind('<Shift-Insert>', lambda e: self.process_image_from_clipboard())
-        self.parent.bind('<Control-c>', lambda e: self.save_image_to_clipboard())
-        self.parent.bind('<Control-s>', lambda e: self.save_image_to_disk())
 
     def setup_widgets(self):
         # Menu
