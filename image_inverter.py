@@ -177,7 +177,7 @@ class App(ttk.Frame):
 
     def process_grabbed_image(self, event):
         image_path = event.data.strip("{}")
-        self.open_image_from_path(image_path)
+        self.open_image_from_path(image_path, False)
 
     def open_dialog_for_image(self):
         image_path = filedialog.askopenfilename(
@@ -188,16 +188,18 @@ class App(ttk.Frame):
         )
         if len(image_path.strip()) == 0:
             return
-        self.open_image_from_path(image_path)
+        self.open_image_from_path(image_path, True)
 
-    def open_image_from_path(self, image_path: str):
+    def open_image_from_path(self, image_path: str, file_dialog=False):
         try:
             self.set_image_to_canvas(Image.open(image_path))
             self.original_image_name = path.basename(image_path).split(".", maxsplit=1)[0]
             self.apply_inversion()
             self.errors_label.config(text="")
         except (FileNotFoundError, UnidentifiedImageError, OSError):
-            self.errors_label.config(text="Couldn't get image from file drop!")
+            self.errors_label.config(
+                text="Couldn't get image from file dialog!" if file_dialog else "Couldn't get image from file drop!"
+            )
 
     def process_image_from_clipboard(self):
         processed = False
