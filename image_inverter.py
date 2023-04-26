@@ -88,10 +88,10 @@ class App(ttk.Frame):
         self.canvas = Canvas(self.canvas_frame, width=620, height=340, scrollregion=(0, 0, 620, 340))
         self.canvas.create_image((310, 170), anchor=CENTER, image=self.placeholder_image, tag="img")
 
-        hbar = tk.Scrollbar(self.canvas_frame, orient=HORIZONTAL)
+        hbar = ttk.Scrollbar(self.canvas_frame, orient=HORIZONTAL)
         hbar.pack(side=BOTTOM, fill=X)
         hbar.config(command=self.canvas.xview)
-        vbar = tk.Scrollbar(self.canvas_frame, orient=VERTICAL)
+        vbar = ttk.Scrollbar(self.canvas_frame, orient=VERTICAL)
         vbar.pack(side=RIGHT, fill=Y)
         vbar.config(command=self.canvas.yview)
         self.canvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
